@@ -1,0 +1,186 @@
+﻿@model ContactPost
+
+@{
+    ViewData["Title"] = "Contact";
+}
+
+<!-- Breadcrumb Start -->
+<div class="breadcrumb-area ptb-50">
+    <div class="container">
+        <div class="breadcrumb">
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li class="active"><a href="contact.html">Faqs</a></li>
+            </ul>
+        </div>
+    </div>
+    <!-- Container End -->
+</div>
+<!-- Breadcrumb End -->
+<!-- Google Map Start -->
+<div class="container">
+    <div id="map" style="height:400px">
+        <iframe src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d32557543.033047896!2d-52.0331925!3d5.0534957!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x91e8605342744385%3A0x3d3c6dc1394a7fc7!2sAmazon%20Rainforest!5e0!3m2!1sen!2sbd!4v1636533626678!5m2!1sen!2sbd" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+
+    </div>
+</div>
+<!-- Google Map End -->
+<!-- Contact Email Area Start -->
+<div class="contact-email-area ptb-50">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h3 class="mb-5">Contact Us</h3>
+                <p class="text-capitalize mb-40">Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
+            </div>
+        </div>
+
+        <form id="contact-form" class="contact-form" method="post" novalidate>
+            @if (ViewBag.Message != null)
+            {
+                <div class="alert-success">@ViewBag.Message</div>
+            }
+            <div class="address-wrapper row">
+                <div class="col-12 col-md-6">
+                    <div class="address-fname control-wrapper">
+                        <input asp-for="Name" placeholder="Name">
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6">
+                    <div class="address-email control-wrapper">
+                        <input asp-for="Email" type="email" placeholder="Email">
+                        <span asp-validation-for="Email" class="text-danger"></span>
+
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="address-subject control-wrapper">
+                        <input asp-for="Subject" placeholder="Subject">
+                        <span asp-validation-for="Subject" class="text-danger"></span>
+
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="address-textarea control-wrapper">
+                        <textarea asp-for="Message" placeholder="Write your message"></textarea>
+                        <span asp-validation-for="Message" class="text-danger"></span>
+
+                    </div>
+                </div>
+            </div>
+            <p class="form-message ml-15"></p>
+            <div class="col-12 footer-content mail-content">
+                <div class="send-email pull-right">
+                    <input type="submit" value="Submit" class="submit">
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<!-- Contact Email Area End -->
+<!-- Signup Newsletter Start -->
+<div class="newsletter">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-7">
+                <div class="main-news-desc">
+                    <div class="news-desc">
+                        <h3>Sign Up For <span>Newsletters</span></h3>
+                        <p>Get e-mail updates about our latest shop and special offers.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-5">
+                <div class="newsletter-box">
+                    <form action="#">
+                        <input class="subscribe" placeholder="Enter your email address" name="email" id="subscribe" type="text">
+                        <button type="submit" class="submit">subscribe</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Signup-Newsletter End -->
+@section addcss{
+<link rel="stylesheet" href="~/lib/toastr.js/toastr.css" />
+<style>
+    input[name].novalidated,
+    textarea[name].novalidated {
+        border: 1px solid rgb(220, 53, 69);
+    }
+</style>
+
+}
+
+@section addjs{
+<script src="~/lib/toastr.js/toastr.min.js"></script>
+<script src="~/lib/toastr.js/toastr.customize.js"></script>
+
+<script>
+    $(document).ready(function(){
+
+        $("#contact-form").submit(function(ev){
+            ev.preventDefault();
+            console.log(ev.currentTarget);
+
+            let fd = new FormData(ev.currentTarget); // form => formData
+
+            $.ajax({
+                url: '@Url.Action("Contact")',
+                type: "POST",
+                data: fd,
+                processData: false,
+                contentType: false,
+                success: function(response){
+                     $("#contact-form span.text-danger").remove();
+                     $("#contact-form input[name]").removeClass("novalidated");
+                    console.log(response, "SUCCESS");
+
+                    if(response.error == true){
+
+                        toastr.error(response.message, "Xeta");
+                        showError(response.state);
+
+                        return;
+                    }
+
+                    toastr.success(response.message, "Ugur!");
+
+                    ev.currentTarget.reset();
+                },
+                error: function(errResponse){
+                    console.log(errResponse, "ERROR");
+                }
+
+            })
+
+            //console.log(formData.get("Name"), "Adı"); // body, title
+            //console.log(formData.get("Email"), "Email"); // body, title
+            //console.log(formData.get("Subject"), "Subject"); // body, title
+            //console.log(formData.get("Subject"), "Message"); // body, title
+
+
+        })
+    });
+
+    function showError(state) {
+
+
+
+
+        state.forEach(item => {
+
+            let errorInput = $(`#contact-form input[name = ${item.fieldName}], #contact-form textarea[name = ${item.fieldName}]`);
+            let errorSpan =  $("<span/>", {
+                    class: 'text-danger',
+                    html: item.message
+                });
+
+                $(errorInput.parent()).append(errorSpan);
+                $(errorInput).addClass("novalidated")
+        });
+    }
+</script>
+}
